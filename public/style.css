@@ -1,9 +1,29 @@
-* {
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+body {
+  background-color: black;
+  border-style: none;
 }
 
-header,
-footer {
-  background-color: lightblue;
-  padding: 12px;
+p {
+  color: white;
+  border-style: none;
+  font-family: lemon;
+  font-family: "Space Mono", sans-serif;
+  font-size: 16px;
+}
+
+h,
+h1,
+h2 {
+  color: white;
+  border-style: none;
+  font-family: "Impact", sans-serif;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  color: white;
 }

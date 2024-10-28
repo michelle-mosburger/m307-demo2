@@ -1,7 +1,7 @@
-<h1>Hallo Welt!</h1>
-
-<p>Willkommen auf meiner Website. Hier wird in Kürze eine interaktive Webapplikation entstehen. Viel Vergnügen!</p>
-
-<img src="construction.gif" width="200">
-
-{{> contactform}}
+{{#event}}
+  <hr />
+  <h1>{{event_name}}</h1>
+  <p>{{description}}</p>
+  <p>{{place}}</p
+  <p>{{date}}</p>
+{{/event}}
