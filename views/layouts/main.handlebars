@@ -12,8 +12,20 @@
 
   <body>
     <header>
-      <img src="public/uploads/logo.png" />
+      <a href="/"> <img class="logo" src="logo.png" /></a>
+      <nav><ul>
+          <li><a href="/login">login</a></li>
+          <li><a href="/register">registrieren</a></li>
+          <li><a href="/form">Event erstellen</a></li>
+        </ul></nav>
     </header>
+
+    <style>
+      .logo{ width: 10em; } 
+      a { text-decoration: none; color: #ffffff;
+      font-family: "Outfit", sans-serif; line-height: 1.7; }
+
+    </style>
 
     {{{body}}}
 

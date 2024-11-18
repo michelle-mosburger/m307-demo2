@@ -13,24 +13,20 @@ const app = createApp({
   res.render("start", {});
 });*/
 
-// Datenbankabfrage event
+//Homeseite
 
-app.get("/", async function (req, res) {
+app.get("/", async (req, res) => {
   const event = await app.locals.pool.query("select * from event");
-  console.log(event.rows);
   res.render("start", { event: event.rows });
 });
-
 // Datenbankabfrage user
 
 /*app.get("/", async function (req, res) {
   const user = await app.locals.pool.query("select * from user");
   res.render("start", {});
-});/*
+});*/
 
-
-
-/*Seite Impressum*/
+///*Seite Impressum*/
 
 app.get("/impressum", async function (req, res) {
   res.render("impressum", {});
@@ -42,16 +38,34 @@ app.get("/form", async function (req, res) {
   res.render("form", {});
 });
 
-/*Event-Formular übermitteln*/
-app.post("/creat_event", upload.single('image') async function (req, res) {
-  await app.locals.pool.query(
-    "INSERT INTO event (event_name, description, place, date) VALUES ($1, $2, $3, $4)",
-    [req.body.title, req.body.description, req.body.place, req.body.date]
-  );
-  res.redirect("/");
+// Event-Formular übermitteln
+app.post("/creat_event", upload.single("image"), async function (req, res) {
+  // Sicherstellen, dass der Benutzer eingeloggt ist
+  if (!req.session.userid) {
+    return res.redirect("/login");
+    console.log(fehler);
+    // Weiterleitung, wenn der Benutzer nicht eingeloggt ist
+  }
+
+  // Event-Daten aus dem Formular
+  const { title, description, place, date } = req.body;
+  const user_id = req.session.userid; // Benutzer-ID aus der Session holen
+
+  // Event in die Datenbank einfügen und mit der Benutzer-ID verknüpfen
+  try {
+    // Beachte die korrekte Reihenfolge der Spalten und Parameter
+    await app.locals.pool.query(
+      "INSERT INTO event (user_id, event_name, description, place, date) VALUES ($1, $2, $3, $4, $5)",
+      [user_id, title, description, place, date] // Hier wird 'user_id' hinzugefügt
+    );
+    res.redirect("/"); // Weiterleitung zur Startseite nach dem Erstellen des Events
+  } catch (error) {
+    console.error("Fehler beim Erstellen des Events:", error);
+    res.status(500).send("Fehler beim Erstellen des Events.");
+  }
 });
 
-/* Wichtig! Diese Zeilen müssen immer am Schluss der Website stehen! */
+// Wichtig! Diese Zeilen müssen immer am Schluss der Website stehen!
 app.listen(3010, () => {
   console.log(`Example app listening at http://localhost:3010`);
 });
