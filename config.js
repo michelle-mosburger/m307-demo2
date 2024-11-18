@@ -101,7 +101,7 @@ export function createApp(dbconfig) {
     try {
       const result = await app.locals.pool.query(
         `
-        SELECT * from events
+        SELECT events.* 
         FROM events
         INNER JOIN favorit ON events.id = favorit.event_id
         WHERE favorit.users_id = $1
