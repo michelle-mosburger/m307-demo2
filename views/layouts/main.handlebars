@@ -1,37 +1,36 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="de">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HTML5 Boilerplate</title>
-    <link rel="stylesheet" href="/style.css" />
-    <link href="https://fonts.cdnfonts.com/css/impact" rel="stylesheet" />
-    <link href="https://fonts.cdnfonts.com/css/space-mono" rel="stylesheet" />
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Weitere globale Inhalte wie Fonts, Scripts -->
   </head>
+<body>
+  <header>
+    <nav>
+      <a href="/">
+        <img class="logo" src="logo.png" />
+      </a>
+      <ul>
+        {{#if session.userid}}  <!-- Prüft, ob der Benutzer eingeloggt ist -->
+          <!-- Zeige Links an, wenn der Benutzer eingeloggt ist -->
+          <li><a href="/logout">Logout</a></li>
+          <li><a href="/profile">Profil</a></li>
+        {{else}}
+          <!-- Zeige Login und Register nur an, wenn der Benutzer nicht eingeloggt ist -->
+          <li><a href="/login">Login</a></li>
+          <li><a href="/register">Registrieren</a></li>
+        {{/if}}
+      </ul>
+    </nav>
+  </header>
 
-  <body>
-    <header>
-      <a href="/"> <img class="logo" src="logo.png" /></a>
-      <nav><ul>
-          <li><a href="/login">login</a></li>
-          <li><a href="/register">registrieren</a></li>
-          <li><a href="/form">Event erstellen</a></li>
-        </ul></nav>
-    </header>
 
-    <style>
-      .logo{ width: 10em; } 
-      a { text-decoration: none; color: #ffffff;
-      font-family: "Outfit", sans-serif; line-height: 1.7; }
+  {{{body}}}
 
-    </style>
-
-    {{{body}}}
-
-    <footer>
-      <a href="/impressum">Impressum</a>
-    </footer>
-  </body>
-
-</html>
+  <footer>
+    <a href="/impressum">Impressum</a>
+  </footer>
+</body>

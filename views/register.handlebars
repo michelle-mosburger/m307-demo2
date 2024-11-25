@@ -1,13 +1,24 @@
-<h2>Registrieren</h2>
-
-<form action="/register" method="POST">
-  <label for="first_name">Vorname:</label>
-  <input type="text" name="first_name" required />
-  <label for="last_name">Nachname:</label>
-  <input type="text" name="last_name" required />
-  <label for="username"> E-Mail:</label>
-  <input name="username" type="text" /><br />
-  <label for="password"> Passwort:</label>
-  <input name="password" type="password" /><br />
-  <input type="submit" value="Registrieren" />
+<form action="/register" method="POST" class="sign-in-form">
+  <h2>Registrieren</h2>
+  <div class="input-group">
+    <label for="first_name">Vorname:</label>
+    <input type="text" name="first_name" required />
+  </div>
+  <div class="input-group">
+    <label for="last_name">Nachname:</label>
+    <input type="text" name="last_name" required />
+  </div>
+  <div class="input-group">
+    <label for="username">E-Mail:</label>
+    <input name="username" type="text" required />
+  </div>
+  <div class="input-group">
+    <label for="password">Passwort:</label>
+    <input name="password" type="password" required />
+  </div>
+  <button type="submit" class="sign-in-button">Registriere dich!</button>
 </form>
+
+<style>
+  body{ font-family: "Outfit"; }
+</style>

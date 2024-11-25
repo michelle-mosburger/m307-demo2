@@ -16,8 +16,15 @@ const app = createApp({
 //Homeseite
 
 app.get("/", async (req, res) => {
-  const event = await app.locals.pool.query("select * from event");
-  res.render("start", { event: event.rows });
+  try {
+    const result = await app.locals.pool.query(
+      "SELECT id, event_name, description, place, date, COALESCE(image, '/placeholder.png') AS image FROM event"
+    );
+    res.render("start", { events: result.rows, session: req.session }); // session an Template übergeben
+  } catch (error) {
+    console.error("Fehler beim Laden der Events:", error);
+    res.status(500).send("Fehler beim Laden der Events.");
+  }
 });
 // Datenbankabfrage user
 
@@ -43,20 +50,22 @@ app.post("/creat_event", upload.single("image"), async function (req, res) {
   // Sicherstellen, dass der Benutzer eingeloggt ist
   if (!req.session.userid) {
     return res.redirect("/login");
-    console.log(fehler);
-    // Weiterleitung, wenn der Benutzer nicht eingeloggt ist
   }
 
   // Event-Daten aus dem Formular
   const { title, description, place, date } = req.body;
   const user_id = req.session.userid; // Benutzer-ID aus der Session holen
+  // Überprüfen, ob ein Bild hochgeladen wurde
+  const image = req.file ? `/uploads/${req.file.filename}` : "/placeholder.png"; // Standardbild, wenn kein Bild hochgeladen wurde
+
+  console.log({ user_id, title, description, place, date, image }); // Debugging
 
   // Event in die Datenbank einfügen und mit der Benutzer-ID verknüpfen
   try {
     // Beachte die korrekte Reihenfolge der Spalten und Parameter
     await app.locals.pool.query(
-      "INSERT INTO event (user_id, event_name, description, place, date) VALUES ($1, $2, $3, $4, $5)",
-      [user_id, title, description, place, date] // Hier wird 'user_id' hinzugefügt
+      "INSERT INTO event (user_id, event_name, description, place, date, image) VALUES ($1, $2, $3, $4, $5, $6)",
+      [user_id, title, description, place, date, image] // Hier wird 'user_id' hinzugefügt
     );
     res.redirect("/"); // Weiterleitung zur Startseite nach dem Erstellen des Events
   } catch (error) {

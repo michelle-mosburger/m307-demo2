@@ -12,6 +12,13 @@ export function createApp(dbconfig) {
   const app = express();
 
   const pool = new Pool(dbconfig);
+  pool.query("SELECT NOW()", (err, res) => {
+    if (err) {
+      console.error("Datenbankverbindung fehlgeschlagen:", err);
+    } else {
+      console.log("Datenbankverbindung erfolgreich:", res.rows);
+    }
+  });
 
   app.engine("handlebars", engine());
   app.set("view engine", "handlebars");
@@ -70,9 +77,10 @@ export function createApp(dbconfig) {
           console.log("Benutzer nicht gefunden");
           return res.redirect("/login");
         }
+
         if (bcrypt.compareSync(req.body.password, result.rows[0].password)) {
-          req.session.userid = result.rows[0].id;
-          res.redirect("/");
+          req.session.userid = result.rows[0].id; // Benutzer-ID in der Session speichern
+          res.redirect("/"); // Weiterleitung zur Startseite
         } else {
           console.log("Falsches Passwort");
           res.redirect("/login");
@@ -101,9 +109,9 @@ export function createApp(dbconfig) {
     try {
       const result = await app.locals.pool.query(
         `
-        SELECT events.* 
-        FROM events
-        INNER JOIN favorit ON events.id = favorit.event_id
+        SELECT event.* 
+        FROM event
+        INNER JOIN favorit ON event.id = favorit.event_id
         WHERE favorit.users_id = $1
         `,
         [req.session.userid]
@@ -111,13 +119,54 @@ export function createApp(dbconfig) {
 
       res.render("favorites", { favorites: result.rows });
     } catch (error) {
-      console.error("Fehler beim Abrufen der Favoriten:", error);
+      console.error(
+        "Fehler beim Abrufen der Favoriten:",
+        error.message,
+        error.stack
+      );
       res
         .status(500)
         .send(
           "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
         );
     }
+  });
+
+  // Route für Profilseite
+  app.get("/profile", async (req, res) => {
+    // Überprüfen, ob der Benutzer eingeloggt ist
+    if (!req.session.userid) {
+      return res.redirect("/login"); // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
+    }
+
+    try {
+      // Alle Benutzerinformationen aus der Datenbank abfragen
+      const result = await app.locals.pool.query(
+        "SELECT first_name, last_name, username, email FROM users WHERE id = $1",
+        [req.session.userid] // Nutzer-ID aus der Session verwenden
+      );
+
+      // Falls der Benutzer nicht gefunden wird, Fehler ausgeben
+      if (result.rows.length === 0) {
+        return res.status(404).send("Benutzer nicht gefunden");
+      }
+
+      // Alle Benutzerinformationen in das Template übergeben
+      const user = result.rows[0]; // Das Benutzerobjekt aus der Abfrage
+      res.render("profile", { user }); // Alle Benutzerinformationen an das Template übergeben
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Benutzerdaten:", error);
+      res.status(500).send("Fehler beim Abrufen der Benutzerdaten.");
+    }
+  });
+
+  app.get("/logout", function (req, res) {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.redirect("/"); // Fehlerbehandlung
+      }
+      res.redirect("/"); // Nach dem Logout zurück zur Startseite
+    });
   });
 
   return app;

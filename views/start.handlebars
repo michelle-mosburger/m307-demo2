@@ -1,20 +1,24 @@
 <div class="events-container">
-  {{#event}}
-    <div class="event-container">
-      <h1>{{event_name}}</h1>
+  {{#each events}}
+    <div class="event-card">
+      {{#if image}}
+        <img src="{{image}}" alt="{{event_name}}" class="event-image" />
+      {{else}}
+        <img
+          src="/public/placeholder.svg"
+          alt="Kein Bild verfügbar"
+          class="event-image"
+        />
+      {{/if}}
+      <div class="form-container">
+        <form action="/like/{{id}}" method="POST">
+          <input type="image" src="/if_no_event.svg" />
+        </form>
+      </div>
+      <h2>{{event_name}}</h2>
       <p>{{description}}</p>
-      <p>{{place}}</p>
-      <p>{{date}}</p>
-      <form action="/like/{{id}}" enctype="multipart/form-data" method="POST">
-        <input type="image" src="/like.png" />
-      </form>
+      <p>Ort: {{place}}</p>
+      <p>Datum: {{date}}</p>
     </div>
-  {{/event}}
+  {{/each}}
 </div>
-
-<style>
-  .events-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom:
-  20px; } .event-container { flex: 1 1 45%;border: 1.7px solid #ccc; padding:
-  20px; border-radius: 8px; background-color: none; box-sizing: border-box; }
-  @media (max-width: 768px) { .events-container { flex-direction: column; } }
-</style>

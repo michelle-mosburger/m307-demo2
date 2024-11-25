@@ -1,0 +1,21 @@
+<h1>Deine Favoriten</h1>
+
+{{#if favorites.length}}
+  <div class="events-container">
+    {{#each favorites}}
+      <div class="event-container">
+        <h1>{{event_name}}</h1>
+        <p>{{description}}</p>
+        <p>{{place}}</p>
+        <p>{{date}}</p>
+        <form action="/like/{{id}}" enctype="multipart/form-data" method="POST">
+          <input type="image" src="/like.png" />
+        </form>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <p>Du hast noch keine Favoriten hinzugefügt.</p>
+{{/if}}
+
+<a href="/">Zurück zur Startseite</a>
