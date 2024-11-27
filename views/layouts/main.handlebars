@@ -16,12 +16,14 @@
       <ul>
         {{#if session.userid}}  <!-- Prüft, ob der Benutzer eingeloggt ist -->
           <!-- Zeige Links an, wenn der Benutzer eingeloggt ist -->
-          <li><a href="/logout">Logout</a></li>
           <li><a href="/profile">Profil</a></li>
+          <li><a href="/favorites">Favoriten</a></li>
+          <li><a href="/form">Event erstellen</a></li>
         {{else}}
           <!-- Zeige Login und Register nur an, wenn der Benutzer nicht eingeloggt ist -->
           <li><a href="/login">Login</a></li>
           <li><a href="/register">Registrieren</a></li>
+          <li><a href="/form">Event erstellen</a></li>
         {{/if}}
       </ul>
     </nav>

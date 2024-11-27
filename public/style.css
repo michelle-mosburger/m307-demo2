@@ -296,23 +296,103 @@ h1 {
   color: black;
 }
 .event-image {
-  max-width: 100%;
-  height: 20%; /* Einheitliche Bildgröße */
+  width: 100%;
+  height: auto; /* Einheitliche Bildgröße */
   object-fit: cover; /* Bild passend zuschneiden */
 }
 
 .custom-file-btn {
-  padding: 10px 15px;
-  background-color: #40ff5e; /* Green background */
-  color: black;
-  border: 1px solid #40ff5e;
-  cursor: pointer;
+  background-color: #000000;
+  border: 1px solid #ffffff;
+  color: white;
   font-size: 16px;
-  width: auto;
+  cursor: pointer;
+  padding: 10px;
+  width: 100%;
   box-sizing: border-box;
   align-items: center;
 }
 
+.custom-file-btn:hover {
+  color: white;
+  border: 1px solid #40ff5e;
+}
 .form-container {
   text-align: right;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.profile-form input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ffffff;
+  background-color: black;
+  color: #fff;
+}
+
+.profile-form input:focus {
+  outline: none;
+  border-color: #0f0;
+}
+
+.center-content {
+  display: flex; /* Use Flexbox */
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 2em;
+}
+
+a {
+  margin-top: 1rem; /* Add space above the link */
+  font-size: 1rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.back-button {
+  background-color: #000000;
+  border: 1px solid #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  color: white;
+  font-family: "Outfit", sans-serif;
+}
+
+a.back-button:hover {
+  background-color: #40ff5e;
+  border-color: #40ff5e;
+  color: black !important;
+  text-decoration: none;
 }

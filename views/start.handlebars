@@ -1,19 +1,30 @@
 <div class="events-container">
   {{#each events}}
-    <div class="event-card">
+    <div class="event-container">
       {{#if image}}
         <img src="{{image}}" alt="{{event_name}}" class="event-image" />
       {{else}}
         <img
-          src="/public/placeholder.svg"
-          alt="Kein Bild verfügbar"
+          src="{{image}}"
+          onerror="this.onerror=null; this.src='/placeholder.png';"
+          alt="{{event_name}}"
           class="event-image"
         />
       {{/if}}
       <div class="form-container">
-        <form action="/like/{{id}}" method="POST">
-          <input type="image" src="/if_no_event.svg" />
-        </form>
+        {{#if this.is_favorite}}
+          <form action="/unlike/{{id}}" method="POST">
+            <input
+              type="image"
+              src="/else_event_selected.svg"
+              alt="Favorisieren entfernen"
+            />
+          </form>
+        {{else}}
+          <form action="/like/{{id}}" method="POST">
+            <input type="image" src="/if_no_event.svg" alt="Favorisieren" />
+          </form>
+        {{/if}}
       </div>
       <h2>{{event_name}}</h2>
       <p>{{description}}</p>

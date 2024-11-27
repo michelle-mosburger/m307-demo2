@@ -37,21 +37,32 @@ export function createApp(dbconfig) {
     })
   );
 
+  app.use((req, res, next) => {
+    // Setze die Session-Daten als globale Variablen für Handlebars
+    res.locals.session = req.session;
+    next();
+  });
+
   app.locals.pool = pool;
+
+  // Route für Registrierung
   app.get("/register", function (req, res) {
     res.render("register");
   });
 
   app.post("/register", function (req, res) {
-    var password = bcrypt.hashSync(req.body.password, 10);
+    const { first_name, last_name, username, password } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, 10); // Passwort hashen
+
     pool.query(
       "INSERT INTO users (first_name, last_name, username, password) VALUES ($1, $2, $3, $4)",
-      [req.body.first_name, req.body.last_name, req.body.username, password],
+      [first_name, last_name, username, hashedPassword],
       (error, result) => {
         if (error) {
           console.log(error);
           return res.render("register", {
-            error: "Registration failed. Please try again.",
+            error:
+              "Registration fehlgeschlagen. Bitte versuchen Sie es später erneut.",
           });
         }
         res.redirect("/login");
@@ -59,18 +70,21 @@ export function createApp(dbconfig) {
     );
   });
 
+  // Route für Login
   app.get("/login", function (req, res) {
     res.render("login");
   });
 
   app.post("/login", function (req, res) {
+    const { username, password } = req.body;
+
     pool.query(
       "SELECT * FROM users WHERE username = $1",
-      [req.body.username],
+      [username],
       (error, result) => {
         if (error) {
           console.log(error);
-          return res.redirect("/login"); // Fehlerbehandlung
+          return res.redirect("/login");
         }
 
         if (result.rows.length === 0) {
@@ -78,7 +92,7 @@ export function createApp(dbconfig) {
           return res.redirect("/login");
         }
 
-        if (bcrypt.compareSync(req.body.password, result.rows[0].password)) {
+        if (bcrypt.compareSync(password, result.rows[0].password)) {
           req.session.userid = result.rows[0].id; // Benutzer-ID in der Session speichern
           res.redirect("/"); // Weiterleitung zur Startseite
         } else {
@@ -89,19 +103,8 @@ export function createApp(dbconfig) {
     );
   });
 
-  app.post("/like/:id", async function (req, res) {
-    if (!req.session.userid) {
-      res.redirect("/login");
-      return;
-    }
-    await app.locals.pool.query(
-      "INSERT INTO favorit (event_id, users_id) VALUES ($1, $2)",
-      [req.params.id, req.session.userid]
-    );
-    res.redirect("/");
-  });
-
-  app.get("/favorites", async function (req, res) {
+  // Favoriten anzeigen
+  app.get("/favorites", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
     }
@@ -109,57 +112,118 @@ export function createApp(dbconfig) {
     try {
       const result = await app.locals.pool.query(
         `
-        SELECT event.* 
-        FROM event
-        INNER JOIN favorit ON event.id = favorit.event_id
-        WHERE favorit.users_id = $1
-        `,
+      SELECT e.id, e.event_name, e.description, e.place, e.date, 
+      COALESCE(e.image, '/placeholder.png') AS image
+      FROM event e
+      INNER JOIN favorit f ON e.id = f.event_id
+      WHERE f.users_id = $1
+      `,
         [req.session.userid]
       );
 
       res.render("favorites", { favorites: result.rows });
     } catch (error) {
-      console.error(
-        "Fehler beim Abrufen der Favoriten:",
-        error.message,
-        error.stack
-      );
-      res
-        .status(500)
-        .send(
-          "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
-        );
+      console.error("Fehler beim Abrufen der Favoriten:", error.message);
+      res.status(500).send("Fehler beim Abrufen der Favoriten.");
     }
   });
 
+  // Event favorisieren
+  app.post("/like/:id", async (req, res) => {
+    if (!req.session.userid) {
+      return res.redirect("/login");
+    }
+
+    const eventId = req.params.id;
+
+    try {
+      // Überprüfen, ob das Event bereits favorisiert wurde
+      const checkResult = await app.locals.pool.query(
+        "SELECT * FROM favorit WHERE event_id = $1 AND users_id = $2",
+        [eventId, req.session.userid]
+      );
+
+      if (checkResult.rows.length === 0) {
+        // Favorisieren, wenn es nicht existiert
+        await app.locals.pool.query(
+          "INSERT INTO favorit (event_id, users_id) VALUES ($1, $2)",
+          [eventId, req.session.userid]
+        );
+      }
+
+      res.redirect("/");
+    } catch (error) {
+      console.error("Fehler beim Favorisieren des Events:", error.message);
+      res.status(500).send("Fehler beim Favorisieren des Events.");
+    }
+  });
+
+  // Event von Favoriten entfernen
+  app.post("/unlike/:id", async (req, res) => {
+    if (!req.session.userid) {
+      return res.redirect("/login");
+    }
+
+    const eventId = req.params.id;
+
+    try {
+      await app.locals.pool.query(
+        "DELETE FROM favorit WHERE event_id = $1 AND users_id = $2",
+        [eventId, req.session.userid]
+      );
+
+      res.redirect("/favorites");
+    } catch (error) {
+      console.error("Fehler beim Entfernen des Favoriten:", error.message);
+      res.status(500).send("Fehler beim Entfernen des Favoriten.");
+    }
+  });
   // Route für Profilseite
   app.get("/profile", async (req, res) => {
-    // Überprüfen, ob der Benutzer eingeloggt ist
     if (!req.session.userid) {
-      return res.redirect("/login"); // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
+      return res.redirect("/login");
     }
 
     try {
-      // Alle Benutzerinformationen aus der Datenbank abfragen
       const result = await app.locals.pool.query(
-        "SELECT first_name, last_name, username, email FROM users WHERE id = $1",
-        [req.session.userid] // Nutzer-ID aus der Session verwenden
+        "SELECT first_name, last_name, username FROM users WHERE id = $1",
+        [req.session.userid]
       );
 
-      // Falls der Benutzer nicht gefunden wird, Fehler ausgeben
       if (result.rows.length === 0) {
         return res.status(404).send("Benutzer nicht gefunden");
       }
 
-      // Alle Benutzerinformationen in das Template übergeben
-      const user = result.rows[0]; // Das Benutzerobjekt aus der Abfrage
-      res.render("profile", { user }); // Alle Benutzerinformationen an das Template übergeben
+      const user = result.rows[0];
+      res.render("profile", { user });
     } catch (error) {
       console.error("Fehler beim Abrufen der Benutzerdaten:", error);
       res.status(500).send("Fehler beim Abrufen der Benutzerdaten.");
     }
   });
 
+  // Route zum Aktualisieren des Profils
+  app.post("/profile/update", async (req, res) => {
+    if (!req.session.userid) {
+      return res.redirect("/login");
+    }
+
+    const { first_name, last_name, username } = req.body;
+
+    try {
+      await app.locals.pool.query(
+        "UPDATE users SET first_name = $1, last_name = $2, username = $3 WHERE id = $4",
+        [first_name, last_name, username, req.session.userid]
+      );
+
+      res.redirect("/profile");
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren der Benutzerdaten:", error);
+      res.status(500).send("Fehler beim Aktualisieren der Benutzerdaten.");
+    }
+  });
+
+  // Route für Logout
   app.get("/logout", function (req, res) {
     req.session.destroy((err) => {
       if (err) {

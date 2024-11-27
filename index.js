@@ -9,60 +9,59 @@ const app = createApp({
 });
 
 /* Startseite */
-/*app.get("/", async function (req, res) {
-  res.render("start", {});
-});*/
-
-//Homeseite
-
 app.get("/", async (req, res) => {
   try {
+    const userId = req.session.userid || null;
+
     const result = await app.locals.pool.query(
-      "SELECT id, event_name, description, place, date, COALESCE(image, '/placeholder.png') AS image FROM event"
+      `
+      SELECT e.id, e.event_name, e.description, e.place, e.date, 
+             COALESCE(e.image, '/placeholder.png') AS image,
+             CASE 
+               WHEN f.event_id IS NOT NULL THEN TRUE 
+               ELSE FALSE 
+             END AS is_favorite
+      FROM event e
+      LEFT JOIN favorit f ON e.id = f.event_id AND f.users_id = $1
+      `,
+      [userId]
     );
-    res.render("start", { events: result.rows, session: req.session }); // session an Template übergeben
+
+    res.render("start", { events: result.rows, session: req.session });
   } catch (error) {
     console.error("Fehler beim Laden der Events:", error);
     res.status(500).send("Fehler beim Laden der Events.");
   }
 });
-// Datenbankabfrage user
 
-/*app.get("/", async function (req, res) {
-  const user = await app.locals.pool.query("select * from user");
-  res.render("start", {});
-});*/
-
-///*Seite Impressum*/
-
+// Impressum-Seite
 app.get("/impressum", async function (req, res) {
   res.render("impressum", {});
 });
 
-/*Seite Event erstellen*/
-/* Formular Event erstellen */
+// Formular-Seite für Event-Erstellung
 app.get("/form", async function (req, res) {
+  if (!req.session.userid) {
+    return res.redirect("/login"); // Sicherstellen, dass der Benutzer eingeloggt ist
+  }
   res.render("form", {});
 });
 
-// Event-Formular übermitteln
+// Event erstellen - Formular übermitteln
 app.post("/creat_event", upload.single("image"), async function (req, res) {
   // Sicherstellen, dass der Benutzer eingeloggt ist
   if (!req.session.userid) {
-    return res.redirect("/login");
+    return res.redirect("/login"); // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
   }
 
-  // Event-Daten aus dem Formular
   const { title, description, place, date } = req.body;
   const user_id = req.session.userid; // Benutzer-ID aus der Session holen
-  // Überprüfen, ob ein Bild hochgeladen wurde
   const image = req.file ? `/uploads/${req.file.filename}` : "/placeholder.png"; // Standardbild, wenn kein Bild hochgeladen wurde
 
   console.log({ user_id, title, description, place, date, image }); // Debugging
 
-  // Event in die Datenbank einfügen und mit der Benutzer-ID verknüpfen
   try {
-    // Beachte die korrekte Reihenfolge der Spalten und Parameter
+    // Event in die Datenbank einfügen und mit der Benutzer-ID verknüpfen
     await app.locals.pool.query(
       "INSERT INTO event (user_id, event_name, description, place, date, image) VALUES ($1, $2, $3, $4, $5, $6)",
       [user_id, title, description, place, date, image] // Hier wird 'user_id' hinzugefügt
@@ -74,7 +73,7 @@ app.post("/creat_event", upload.single("image"), async function (req, res) {
   }
 });
 
-// Wichtig! Diese Zeilen müssen immer am Schluss der Website stehen!
+// Server starten
 app.listen(3010, () => {
   console.log(`Example app listening at http://localhost:3010`);
 });

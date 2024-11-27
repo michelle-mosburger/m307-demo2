@@ -1,12 +1,12 @@
+<form
+  action="/creat_event"
+  enctype="multipart/form-data"
+  method="post"
+  id="creat_event"
+  class="event-form"
+>
+  <h1>Event erstellen</h1>
 
-  <form
-    action="/creat_event"
-    enctype="multipart/form-data"
-    method="post"
-    id="creat_event"
-    class="event-form"
-    <h1>Event erstellen</h1>
-  >
   <div class="input-group">
     <label for="title">Event-Name</label>
     <input type="text" name="title" />
@@ -25,10 +25,42 @@
   </div>
   <div class="input-group">
     <p>Bild auswählen</p>
-    <button type="button" class="custom-file-btn" onclick="document.getElementById('image').click();">Wählen Sie ein Bild</button>
+    <button
+      type="button"
+      class="custom-file-btn"
+      onclick="document.getElementById('image').click();"
+    >
+      Wählen Sie ein Bild
+    </button>
+    <input
+      type="file"
+      id="image"
+      name="image"
+      style="display: none;"
+      accept="image/*"
+      onchange="previewImage(event)"
+    />
+    <div id="image-preview" class="image-preview-container"></div>
   </div>
   <div class="input-group">
     <input type="submit" class="submit-btn" />
   </div>
 </form>
-</div>
+
+//muss noch in den separaten files eingefügt werden//
+
+<style>
+  .image-preview-container { margin-top: 10px; } .image-preview-container img {
+  max-width: 100%; max-height: 200px; border: 1px solid #ccc; padding: 5px;
+  border-radius: 5px; }
+</style>
+
+<script>
+  function previewImage(event) { const imagePreviewContainer =
+  document.getElementById('image-preview'); const file = event.target.files[0];
+  if (file) { const reader = new FileReader(); reader.onload = function(e) {
+  imagePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Image
+  Preview">`; }; reader.readAsDataURL(file); } else {
+  imagePreviewContainer.innerHTML = ''; // Clear the preview if no file is
+  selected } }
+</script>

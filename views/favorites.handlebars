@@ -4,18 +4,37 @@
   <div class="events-container">
     {{#each favorites}}
       <div class="event-container">
-        <h1>{{event_name}}</h1>
+        {{#if image}}
+          <img src="{{image}}" alt="{{event_name}}" class="event-image" />
+        {{else}}
+          <img
+            src="{{image}}"
+            onerror="this.onerror=null; this.src='/placeholder.png';"
+            alt="{{event_name}}"
+            class="event-image"
+          />
+        {{/if}}
+        <div class="form-container">
+          <form action="/unlike/{{id}}" method="POST">
+            <input
+              type="image"
+              src="/else_event_selected.svg"
+              alt="Favorisiert entfernen"
+            />
+          </form>
+        </div>
+        <h2>{{event_name}}</h2>
         <p>{{description}}</p>
-        <p>{{place}}</p>
-        <p>{{date}}</p>
-        <form action="/like/{{id}}" enctype="multipart/form-data" method="POST">
-          <input type="image" src="/like.png" />
-        </form>
+        <p>Ort: {{place}}</p>
+        <p>Datum: {{date}}</p>
       </div>
     {{/each}}
   </div>
 {{else}}
+  <div class="center-content">
   <p>Du hast noch keine Favoriten hinzugefügt.</p>
 {{/if}}
 
-<a href="/">Zurück zur Startseite</a>
+<div class="button-container">
+  <a href="/" class="back-button">Zurück zur Startseite</a>
+</div>
