@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
     <link rel="stylesheet" href="style.css" />
-    <!-- Weitere globale Inhalte wie Fonts, Scripts -->
+   
   </head>
 <body>
   <header>
@@ -14,13 +14,15 @@
         <img class="logo" src="logo.png" />
       </a>
       <ul>
-        {{#if session.userid}}  <!-- Prüft, ob der Benutzer eingeloggt ist -->
-          <!-- Zeige Links an, wenn der Benutzer eingeloggt ist -->
+        {{#if session.userid}}  
+      
           <li><a href="/profile">Profil</a></li>
           <li><a href="/favorites">Favoriten</a></li>
           <li><a href="/form">Event erstellen</a></li>
+          <li><a href="/my-events"> Meine Events</a></li>
+          
         {{else}}
-          <!-- Zeige Login und Register nur an, wenn der Benutzer nicht eingeloggt ist -->
+         
           <li><a href="/login">Login</a></li>
           <li><a href="/register">Registrieren</a></li>
           <li><a href="/form">Event erstellen</a></li>

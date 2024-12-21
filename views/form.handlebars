@@ -32,6 +32,8 @@
     >
       Wählen Sie ein Bild
     </button>
+    <!-- Verstecktes Datei-Upload-Feld. -->
+
     <input
       type="file"
       id="image"
@@ -40,6 +42,9 @@
       accept="image/*"
       onchange="previewImage(event)"
     />
+
+    <!-- Bereich für die Bildvorschau. -->
+
     <div id="image-preview" class="image-preview-container"></div>
   </div>
   <div class="input-group">
@@ -47,7 +52,7 @@
   </div>
 </form>
 
-//muss noch in den separaten files eingefügt werden//
+<!-- CSS für die Bildvorschau -->
 
 <style>
   .image-preview-container { margin-top: 10px; } .image-preview-container img {
@@ -55,12 +60,21 @@
   border-radius: 5px; }
 </style>
 
+<!-- JavaScript zur Bildvorschau -->
+
 <script>
   function previewImage(event) { const imagePreviewContainer =
   document.getElementById('image-preview'); const file = event.target.files[0];
   if (file) { const reader = new FileReader(); reader.onload = function(e) {
   imagePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Image
   Preview">`; }; reader.readAsDataURL(file); } else {
-  imagePreviewContainer.innerHTML = ''; // Clear the preview if no file is
-  selected } }
+  imagePreviewContainer.innerHTML = ''; selected } }
 </script>
+
+<!-- 
+  
+  imagePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Image = Fügt das Bild als Vorschau ein. 
+  reader.readAsDataURL(file); // Liest die Datei als Data-URL.
+  imagePreviewContainer.innerHTML = ''; // Leert die Vorschau, wenn keine Datei ausgewählt ist.
+
+-->

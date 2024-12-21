@@ -1,0 +1,26 @@
+<h1>Meine Events</h1>
+
+{{#if events.length}}
+  <div class="events-container">
+    {{#each events}}
+      <div class="event-container">
+        <img src="{{image}}" alt="{{event_name}}" class="event-image" />
+        <h2>{{event_name}}</h2>
+        <p>{{description}}</p>
+        <p>Ort: {{place}}</p>
+        <p>Datum: {{formatted_date}}</p>
+        <form action="/delete-event/{{id}}" method="POST" class="delete-form">
+          <button type="submit" class="delete-button">Löschen</button>
+        </form>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+<div class="center-content">
+  <p>Du hast noch keine Events erstellt.</p>
+{{/if}}
+
+<div class="button-container">
+<a href="/form" class="submit-btn-profile">Event erstellen</a>
+</div>
+

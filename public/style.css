@@ -33,13 +33,15 @@ h2 {
   margin-bottom: 20px;
 }
 .event-container {
+  position: relative;
   flex: 1 1 45%;
-  border: 1.7px solid #ccc;
+  border: 1.5px solid #ccc;
   padding: 20px;
-  border-radius: 8px;
   background-color: none;
   box-sizing: border-box;
 }
+
+/* sorgt dafür, dass ab einer screen-width von 768px nur ein .event-container angezeigt wird */
 @media (max-width: 768px) {
   .events-container {
     flex-direction: column;
@@ -55,7 +57,7 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 1em 2em;
-  background-color: transparent; /* Ensure no default background */
+  background-color: transparent;
 }
 
 .logo {
@@ -72,12 +74,12 @@ ul {
 
 li {
   margin: 0;
-  color: white !important; /* Force the text color to white */
+  color: white !important;
 }
 
 a {
   text-decoration: none;
-  color: #ffffff !important; /* Force links to be white */
+  color: #ffffff !important;
   font-family: "Outfit", sans-serif;
   line-height: 1.7;
 }
@@ -85,7 +87,7 @@ a {
 footer {
   text-align: center;
   padding: 1em;
-  color: #ffffff !important; /* Force footer text to white */
+  color: #ffffff;
 }
 
 h2 {
@@ -109,7 +111,7 @@ h2 {
   width: 100%;
   border: 1px solid white;
   background-color: #000000;
-  color: white; /* White text */
+  color: white;
   font-size: 16px;
   box-sizing: border-box;
 }
@@ -136,7 +138,6 @@ h2 {
   padding: 5em;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .input-group {
@@ -149,6 +150,11 @@ h2 {
   margin-bottom: 5px;
   display: block;
   box-sizing: border-box;
+}
+
+input[type="image" i] {
+  width: 85%;
+  margin-top: 0.7em;
 }
 
 .input-group input {
@@ -178,7 +184,6 @@ h2 {
   border: 1px solid white;
   padding: 6em;
   margin-top: 3.5em;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .input-group {
@@ -241,7 +246,6 @@ h1 {
   color: #ffffff;
   border: 1px solid white;
   padding: 3em;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .input-group {
@@ -297,8 +301,7 @@ h1 {
 }
 .event-image {
   width: 100%;
-  height: auto; /* Einheitliche Bildgröße */
-  object-fit: cover; /* Bild passend zuschneiden */
+  height: auto;
 }
 
 .custom-file-btn {
@@ -317,14 +320,13 @@ h1 {
   color: white;
   border: 1px solid #40ff5e;
 }
-.form-container {
-  text-align: right;
-}
 
-.profile-container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
+.form-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  padding: 10px;
 }
 
 .title {
@@ -332,20 +334,39 @@ h1 {
   margin-bottom: 2rem;
 }
 
+.profile-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  justify-content: center;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 400px;
+  font-family: "Outfit", sans-serif;
+  color: #ffffff;
+
+  margin: 3em auto;
+}
+
 .profile-form label {
   display: block;
-  margin-bottom: 0.5rem;
   font-weight: bold;
 }
 
 .profile-form input {
-  display: block;
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #ffffff;
-  background-color: black;
-  color: #fff;
+  max-width: 350px;
+  padding: 10px;
+  border: 1px solid white;
+  background-color: #000000;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
 .profile-form input:focus {
@@ -354,8 +375,8 @@ h1 {
 }
 
 .center-content {
-  display: flex; /* Use Flexbox */
-  flex-direction: column; /* Stack elements vertically */
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -363,7 +384,7 @@ h1 {
 }
 
 a {
-  margin-top: 1rem; /* Add space above the link */
+  margin-top: 1rem;
   font-size: 1rem;
   color: #fff;
   text-decoration: none;
@@ -378,7 +399,8 @@ a:hover {
   margin-top: 20px;
 }
 
-.back-button {
+.back-button,
+.submit-btn-profile {
   background-color: #000000;
   border: 1px solid #ffffff;
   font-size: 18px;
@@ -390,9 +412,50 @@ a:hover {
   font-family: "Outfit", sans-serif;
 }
 
-a.back-button:hover {
+a.back-button:hover,
+a.submit-btn-profile:hover {
   background-color: #40ff5e;
   border-color: #40ff5e;
   color: black !important;
   text-decoration: none;
+}
+
+.profil-text {
+  text-align: center;
+}
+
+.submit-btn-changes {
+  width: 100%;
+  max-width: 350px;
+  padding: 10px;
+  border: 1px solid #40ff5e;
+  background-color: #000000;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.submit-btn-changes:hover {
+  background-color: #40ff5e;
+  border-color: #40ff5e;
+  color: black !important;
+  text-decoration: none;
+}
+
+/* CSS-Styling für die Scrollbar. */
+::-webkit-scrollbar-track {
+  background: #9b9b9b;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #606060;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #343434;
 }

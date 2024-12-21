@@ -38,21 +38,19 @@ export function createApp(dbconfig) {
   );
 
   app.use((req, res, next) => {
-    // Setze die Session-Daten als globale Variablen für Handlebars
     res.locals.session = req.session;
     next();
   });
 
   app.locals.pool = pool;
 
-  // Route für Registrierung
   app.get("/register", function (req, res) {
     res.render("register");
   });
 
   app.post("/register", function (req, res) {
     const { first_name, last_name, username, password } = req.body;
-    const hashedPassword = bcrypt.hashSync(password, 10); // Passwort hashen
+    const hashedPassword = bcrypt.hashSync(password, 10);
 
     pool.query(
       "INSERT INTO users (first_name, last_name, username, password) VALUES ($1, $2, $3, $4)",
@@ -70,7 +68,6 @@ export function createApp(dbconfig) {
     );
   });
 
-  // Route für Login
   app.get("/login", function (req, res) {
     res.render("login");
   });
@@ -93,8 +90,8 @@ export function createApp(dbconfig) {
         }
 
         if (bcrypt.compareSync(password, result.rows[0].password)) {
-          req.session.userid = result.rows[0].id; // Benutzer-ID in der Session speichern
-          res.redirect("/"); // Weiterleitung zur Startseite
+          req.session.userid = result.rows[0].id;
+          res.redirect("/");
         } else {
           console.log("Falsches Passwort");
           res.redirect("/login");
@@ -103,7 +100,6 @@ export function createApp(dbconfig) {
     );
   });
 
-  // Favoriten anzeigen
   app.get("/favorites", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -128,7 +124,6 @@ export function createApp(dbconfig) {
     }
   });
 
-  // Event favorisieren
   app.post("/like/:id", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -137,14 +132,12 @@ export function createApp(dbconfig) {
     const eventId = req.params.id;
 
     try {
-      // Überprüfen, ob das Event bereits favorisiert wurde
       const checkResult = await app.locals.pool.query(
         "SELECT * FROM favorit WHERE event_id = $1 AND users_id = $2",
         [eventId, req.session.userid]
       );
 
       if (checkResult.rows.length === 0) {
-        // Favorisieren, wenn es nicht existiert
         await app.locals.pool.query(
           "INSERT INTO favorit (event_id, users_id) VALUES ($1, $2)",
           [eventId, req.session.userid]
@@ -158,7 +151,6 @@ export function createApp(dbconfig) {
     }
   });
 
-  // Event von Favoriten entfernen
   app.post("/unlike/:id", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -172,13 +164,14 @@ export function createApp(dbconfig) {
         [eventId, req.session.userid]
       );
 
-      res.redirect("/favorites");
+      const referer = req.get("Referer"); // Ursprungsseite abrufen
+      res.redirect(referer || "/"); // Zurück zur Ursprungsseite oder zur Startseite
     } catch (error) {
       console.error("Fehler beim Entfernen des Favoriten:", error.message);
       res.status(500).send("Fehler beim Entfernen des Favoriten.");
     }
   });
-  // Route für Profilseite
+
   app.get("/profile", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -202,7 +195,6 @@ export function createApp(dbconfig) {
     }
   });
 
-  // Route zum Aktualisieren des Profils
   app.post("/profile/update", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -223,14 +215,71 @@ export function createApp(dbconfig) {
     }
   });
 
-  // Route für Logout
   app.get("/logout", function (req, res) {
     req.session.destroy((err) => {
       if (err) {
-        return res.redirect("/"); // Fehlerbehandlung
+        return res.redirect("/");
       }
-      res.redirect("/"); // Nach dem Logout zurück zur Startseite
+      res.redirect("/");
     });
+  });
+
+  app.get("/my-events", async (req, res) => {
+    if (!req.session.userid) {
+      return res.redirect("/login");
+    }
+
+    try {
+      const userId = req.session.userid;
+
+      const result = await app.locals.pool.query(
+        `
+      SELECT id, event_name, description, place, 
+             TO_CHAR(date, 'DD MM YYYY') AS formatted_date, 
+             COALESCE(image, '/placeholder.png') AS image
+      FROM event
+      WHERE user_id = $1
+      ORDER BY date DESC
+      `,
+        [userId]
+      );
+
+      res.render("my-events", { events: result.rows, session: req.session });
+    } catch (error) {
+      console.error("Fehler beim Abrufen der eigenen Events:", error);
+      res.status(500).send("Fehler beim Abrufen der eigenen Events.");
+    }
+  });
+
+  app.post("/delete-event/:id", async (req, res) => {
+    if (!req.session.userid) {
+      return res.redirect("/login");
+    }
+
+    const eventId = req.params.id;
+
+    try {
+      const checkOwner = await app.locals.pool.query(
+        "SELECT user_id FROM event WHERE id = $1",
+        [eventId]
+      );
+
+      if (
+        checkOwner.rows.length === 0 ||
+        checkOwner.rows[0].user_id !== req.session.userid
+      ) {
+        return res
+          .status(403)
+          .send("Nicht autorisiert, dieses Event zu löschen.");
+      }
+
+      await app.locals.pool.query("DELETE FROM event WHERE id = $1", [eventId]);
+
+      res.redirect("/my-events");
+    } catch (error) {
+      console.error("Fehler beim Löschen des Events:", error);
+      res.status(500).send("Fehler beim Löschen des Events.");
+    }
   });
 
   return app;

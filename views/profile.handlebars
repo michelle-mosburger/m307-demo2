@@ -1,29 +1,51 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profilinformationen</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="profile-container">
-      <div class="title">
-        <h1>Hallo, {{user.first_name}}!</h1>
-      </div>
+<main class="profile-container">
+  <div class="title">
+    <h1>Hallo, {{user.first_name}}!</h1>
+  </div>
 
-      <form class="profile-form">
-        <label for="first_name">Vorname:</label>
-        <p id="first_name">{{user.first_name}}</p>
+  <p class="profil-text">Durch Klicken auf die Felder kannst du deine persönlichen Daten ganz einfach bearbeiten!</p>
 
-        <label for="last_name">Nachname:</label>
-        <p id="last_name">{{user.last_name}}</p>
+  <form action="/profile/update" method="POST" class="profile-form">
+    <label for="first_name">Vorname</label>
+    <input
+      type="text"
+      id="first_name"
+      name="first_name"
+      value="{{user.first_name}}"
+      required
+    />
 
-        <label for="username">E-Mail:</label>
-        <p id="username">{{user.username}}</p>
-      </form>
-    </main>
-    <style>
-      body { font-family: "Outfit"; }
-    </style>
-  </body>
-</html>
+    <label for="last_name">Nachname</label>
+    <input
+      type="text"
+      id="last_name"
+      name="last_name"
+      value="{{user.last_name}}"
+      required
+    />
+
+    <label for="username">E-Mail</label>
+    <input
+      type="email"
+      id="username"
+      name="username"
+      value="{{user.username}}"
+      required
+    />
+
+    <button type="submit" class="submit-btn-changes">Änderungen speichern</button>
+    <div>
+      <a href="/logout" class="submit-btn-logout">Logout</a>
+    </div>
+  </form>
+   
+ 
+
+  <style>
+      body{
+        text-decoration: none;
+  color: #ffffff !important;
+  font-family: "Outfit", sans-serif;
+  line-height: 1.7;
+      }
+  </style>
