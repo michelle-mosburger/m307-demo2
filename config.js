@@ -179,22 +179,25 @@ export function createApp(dbconfig) {
     }
   });
 
+  // Route zum Abrufen des Benutzerprofils
   app.get("/profile", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
     }
 
     try {
+      // Datenbankabfrage, um Benutzerdaten basierend auf der Benutzer-ID abzurufen
       const result = await app.locals.pool.query(
         "SELECT first_name, last_name, username FROM users WHERE id = $1",
         [req.session.userid]
       );
 
+      // Überprüfen, ob der Benutzer existiert
       if (result.rows.length === 0) {
         return res.status(404).send("Benutzer nicht gefunden");
       }
 
-      const user = result.rows[0];
+      const user = result.rows[0]; // Die Benutzerinformationen aus der Datenbank
       res.render("profile", { user });
     } catch (error) {
       console.error("Fehler beim Abrufen der Benutzerdaten:", error);
@@ -202,14 +205,16 @@ export function createApp(dbconfig) {
     }
   });
 
+  // Route zum Aktualisieren des Benutzerprofils
   app.post("/profile/update", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
     }
 
-    const { first_name, last_name, username } = req.body;
+    const { first_name, last_name, username } = req.body; // Neue Benutzerdaten aus der Anfrage
 
     try {
+      // Datenbankabfrage, um die Benutzerdaten zu aktualisieren
       await app.locals.pool.query(
         "UPDATE users SET first_name = $1, last_name = $2, username = $3 WHERE id = $4",
         [first_name, last_name, username, req.session.userid]
@@ -222,7 +227,9 @@ export function createApp(dbconfig) {
     }
   });
 
+  // Route zum Logout des Benutzers
   app.get("/logout", function (req, res) {
+    // Hiermit wird der Benutzer ausgeloggt
     req.session.destroy((err) => {
       if (err) {
         return res.redirect("/");
@@ -258,6 +265,7 @@ export function createApp(dbconfig) {
     }
   });
 
+  // Route zum Löschen eines Events
   app.post("/delete-event/:id", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -266,11 +274,13 @@ export function createApp(dbconfig) {
     const eventId = req.params.id;
 
     try {
+      // Datenbankabfrage, um zu prüfen, ob der Benutzer das Event erstellt hat bzw. der "Eigentümer" des Events ist
       const checkOwner = await app.locals.pool.query(
         "SELECT user_id FROM event WHERE id = $1",
         [eventId]
       );
 
+      // Überprüfen, ob das Event existiert und ob der Benutzer der Eigentümer ist
       if (
         checkOwner.rows.length === 0 ||
         checkOwner.rows[0].user_id !== req.session.userid
