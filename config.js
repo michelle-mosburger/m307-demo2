@@ -30,10 +30,10 @@ export function createApp(dbconfig) {
 
   app.use(
     sessions({
-      secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-      saveUninitialized: true,
-      cookie: { maxAge: 86400000, secure: false },
-      resave: false,
+      secret: "thisismysecrctekeyfhrgfgrfrty84fwir767", // Schlüssel, um Sitzungsdaten sicher zu verschlüsseln
+      saveUninitialized: true, // Speichert auch nicht initialisierte Sitzungen
+      cookie: { maxAge: 86400000, secure: false }, // Sitzungs-Cookie mit einer Dauer von 24 Stunden.
+      resave: false, // Verhindert das erneute Speichern unveränderter Sitzungen.
     })
   );
 
@@ -44,10 +44,12 @@ export function createApp(dbconfig) {
 
   app.locals.pool = pool;
 
+  // Route für die Registrierungsseite.
   app.get("/register", function (req, res) {
-    res.render("register");
+    res.render("register"); // Rendert das Template für die Registrierung.
   });
 
+  // Route zur Verarbeitung der Registrierung.
   app.post("/register", function (req, res) {
     const { first_name, last_name, username, password } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -89,8 +91,9 @@ export function createApp(dbconfig) {
           return res.redirect("/login");
         }
 
+        // Vergleicht das eingegebene Passwort mit dem in der Datenbank gespeicherten gehashten Passwort
         if (bcrypt.compareSync(password, result.rows[0].password)) {
-          req.session.userid = result.rows[0].id;
+          req.session.userid = result.rows[0].id; // Speichert die Benutzer-ID in der Sitzung.
           res.redirect("/");
         } else {
           console.log("Falsches Passwort");
@@ -106,6 +109,7 @@ export function createApp(dbconfig) {
     }
 
     try {
+      // Abfrage der Events, die der Benutzer als Favoriten markiert hat.
       const result = await app.locals.pool.query(
         `
       SELECT e.id, e.event_name, e.description, e.place, e.date, 
@@ -124,6 +128,7 @@ export function createApp(dbconfig) {
     }
   });
 
+  // Route zum Hinzufügen eines Events zu den Favoriten.
   app.post("/like/:id", async (req, res) => {
     if (!req.session.userid) {
       return res.redirect("/login");
@@ -132,12 +137,14 @@ export function createApp(dbconfig) {
     const eventId = req.params.id;
 
     try {
+      // Prüft, ob das Event bereits in den Favoriten gespeichert ist.
       const checkResult = await app.locals.pool.query(
         "SELECT * FROM favorit WHERE event_id = $1 AND users_id = $2",
         [eventId, req.session.userid]
       );
 
       if (checkResult.rows.length === 0) {
+        // Fügt das Event zu den Favoriten hinzu, wenn es noch nicht existiert.
         await app.locals.pool.query(
           "INSERT INTO favorit (event_id, users_id) VALUES ($1, $2)",
           [eventId, req.session.userid]

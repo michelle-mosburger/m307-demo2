@@ -299,6 +299,24 @@ h1 {
   border-color: #40ff5e;
   color: black;
 }
+
+.delete-button {
+  color: white;
+
+  background-color: #000000;
+  border: 1px solid #40ff5e;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px;
+  width: 9%;
+  box-sizing: border-box;
+}
+
+.delete-button:hover {
+  background-color: #40ff5e;
+  border-color: #40ff5e;
+  color: black;
+}
 .event-image {
   width: 100%;
   height: auto;
